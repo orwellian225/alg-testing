@@ -1,0 +1,35 @@
+{
+    "makefile.makefilePath": "${workspaceFolder}/build/",
+    "cmake.buildDirectory": "${workspaceFolder}/build/",
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "${workspaceFolder}",
+            "binaryPath": "${workspaceFolder}/build/aaa.exe",
+            "binaryArgs": [
+                "algorithms"
+            ],
+            "stopAtEntry": false 
+        },
+        {
+            "cwd": "${workspaceFolder}",
+            "binaryPath": "${workspaceFolder}/build/aaa.exe",
+            "binaryArgs": [
+                "help"
+            ],
+            "stopAtEntry": false 
+        },
+        {
+            
+            "cwd": "${workspaceFolder}",
+            "binaryPath": "${workspaceFolder}/build/aaa.exe",
+            "binaryArgs": [
+                "Debug",
+                ".\\data\\",
+                "100",
+                "100",
+                "\"Brute Force\""
+            ],
+            "stopAtEntry": false 
+        }
+    ],
+}
