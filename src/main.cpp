@@ -9,11 +9,12 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 
+#include "main.h"
 #include "rectadj.h"
 
 #define TEST_NAME "DEBUG"
 #define TEST_OUTPUT_DIR ".\\data\\"
-#define TEST_SIZE 100
+#define TEST_SIZE 200
 #define TEST_SAMPLE_RATE 100
 #define DEMO_SIZE 10
 
@@ -41,7 +42,7 @@ int main() {
         fmt::print("\rTest {} / {}", current_test + 1, test_size);
 
         std::chrono::duration<double, std::milli> sum_time = std::chrono::seconds(0);
-        #pragma omp parallel for shared(sum_time)
+        #pragma omp parallel for reduction(add_duration: sum_time)
         for (size_t sample = 0; sample < test_sample_rate; ++sample) {
             // Generate data sample
             std::vector<rect_t> data = GENERATE_DATA(current_test);
@@ -51,7 +52,6 @@ int main() {
             std::vector<adj_t> solution = SOLVE(data);
             auto end_time = std::chrono::high_resolution_clock::now();
 
-            #pragma omp critical
             sum_time += end_time - start_time;
         }
         std::chrono::duration<double, std::milli> average_time = sum_time / test_sample_rate;
