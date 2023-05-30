@@ -11,40 +11,32 @@
 
 #include "rectadj.h"
 
-int main(int argc, char* argv[]) {
+#define TEST_NAME "DEBUG"
+#define TEST_OUTPUT_DIR ".\\data\\"
+#define TEST_SIZE 100
+#define TEST_SAMPLE_RATE 100
+#define DEMO_SIZE 10
 
-    if (argc == 2) {
-        const char* arg = argv[1];
-        if (strcmp(arg, "algorithms") == 0) {
-            // Print Algorithms
-            fmt::println("{}:", fmt::format(fg(fmt::terminal_color::yellow), "Available algorithms to test"));
-            return 0;
-        } else if (strcmp(arg, "help") == 0 || strcmp(arg, "help") == 0 || strcmp(arg, "h") == 0 ) {
-            fmt::println("{}:", fmt::format(fg(fmt::terminal_color::yellow), "How to use"));
-            return 0;
-        } else {
-            fmt::println("{}", fmt::format(fg(fmt::terminal_color::red), "ERROR: Incorrect arguments!"));
-            return -1;
-        }
-    } else if (argc != 5) {
-        fmt::println("{}", fmt::format(fg(fmt::terminal_color::red), "ERROR: Incorrect arguments!"));
-        return -1;
-    }
+#define GENERATE_DATA(n) ( generate_rects_random(n) )
+#define SOLVE(d) ( construct_adjs_bf(d) )
 
-    const std::string test_name = argv[1];
-    const std::string test_ouput_dir = argv[2];
-    const size_t test_size = atoi(argv[3]);
-    const size_t test_sample_rate = atoi(argv[4]);
+int main() {
+    const std::string test_name = TEST_NAME;
+    const std::string test_ouput_dir = TEST_OUTPUT_DIR;
+    const size_t test_size = TEST_SIZE;
+    const size_t test_sample_rate = TEST_SAMPLE_RATE;
+    const size_t demo_size = DEMO_SIZE;
 
     fmt::println("{}", fmt::format(fg(fmt::terminal_color::yellow), "Test Details"));
     fmt::print("\t{}: {}\n", fmt::format(fg(fmt::terminal_color::blue), "Name"), test_name);
     fmt::print("\t{}: {}\n", fmt::format(fg(fmt::terminal_color::blue), "Output directory"), test_ouput_dir);
     fmt::print("\t{}: {}\n", fmt::format(fg(fmt::terminal_color::blue), "Size"), test_size);
     fmt::print("\t{}: {}\n", fmt::format(fg(fmt::terminal_color::blue), "Sample rate"), test_sample_rate);
+    fmt::print("\t{}: {}\n", fmt::format(fg(fmt::terminal_color::blue), "Demo size"), demo_size);
     fmt::print("\n");
 
-    std::filesystem::path out_filepath(fmt::format("{}\\{}.csv", test_ouput_dir, test_name));
-    FILE* out_file = fopen(out_filepath.string().c_str(), "w");
+    std::filesystem::path out_time_filepath(fmt::format("{}\\{}.csv", test_ouput_dir, test_name));
+    FILE* out_time_file = fopen(out_time_filepath.string().c_str(), "w");
     for (size_t current_test = 0; current_test < test_size; ++current_test) {
         fmt::print("\rTest {} / {}", current_test + 1, test_size);
 
@@ -52,23 +44,42 @@ int main(int argc, char* argv[]) {
         #pragma omp parallel for shared(sum_time)
         for (size_t sample = 0; sample < test_sample_rate; ++sample) {
             // Generate data sample
-            std::vector<rect_t> rectangles = generate_rects_random(current_test);
+            std::vector<rect_t> data = GENERATE_DATA(current_test);
 
             auto start_time = std::chrono::high_resolution_clock::now();
             // Solve the problem
-            std::vector<adj_t> adjacencies = construct_adjs_bf(rectangles);
+            std::vector<adj_t> solution = SOLVE(data);
             auto end_time = std::chrono::high_resolution_clock::now();
 
             #pragma omp critical
             sum_time += end_time - start_time;
         }
         std::chrono::duration<double, std::milli> average_time = sum_time / test_sample_rate;
-        fmt::println(out_file, "{},{}", current_test + 1, average_time.count());
+        fmt::println(out_time_file, "{},{}", current_test + 1, average_time.count());
     }
-    fclose(out_file);
+    fclose(out_time_file);
 
     fmt::println("\r{:<32}", fmt::format("Finished Tests"));
     fmt::print("\n");
+
+    std::filesystem::path out_data_filepath(fmt::format("{}\\{}_data.csv", test_ouput_dir, test_name));
+    std::filesystem::path out_solved_filepath(fmt::format("{}\\{}_solved.csv", test_ouput_dir, test_name));
+    FILE* out_data_file = fopen(out_data_filepath.string().c_str(), "w");
+    FILE* out_solved_file = fopen(out_solved_filepath.string().c_str(), "w");
+
+    std::vector<rect_t> data = GENERATE_DATA(demo_size);
+    std::vector<adj_t> solution = SOLVE(data);
+
+    for (size_t i = 0; i < data.size(); ++i) {
+        fmt::println(out_data_file, "{}", data[i].to_string());
+    }
+
+    for (size_t i = 0; i < solution.size(); ++i) {
+        fmt::println(out_solved_file, "{}", solution[i].to_string());
+    }
+
+    fclose(out_data_file);
+    fclose(out_solved_file);
 
     return 0;
 }
