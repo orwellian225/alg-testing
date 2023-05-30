@@ -1,8 +1,17 @@
+#include <algorithm>
 #include <iostream>
 #include <string>
+#include <unordered_map>
+#include <functional>
 
 #include <fmt/core.h>
 #include <fmt/color.h>
+
+std::unordered_map<std::string, std::function<void (void)>> algorithms = {
+    {"BRUTE FORCE", []() {
+        return;
+    }}
+};
 
 int main(int argc, char* argv[]) {
 
@@ -38,12 +47,15 @@ int main(int argc, char* argv[]) {
     fmt::print("\t{}: {}\n", fmt::format(fg(fmt::terminal_color::blue), "Algorithm"), test_algorithm);
     fmt::print("\n");
 
+    std::string algorithm_key = test_algorithm;
+    std::transform(algorithm_key.begin(), algorithm_key.end(), algorithm_key.begin(), ::toupper);
     for (size_t current_test = 0; current_test < test_size; ++current_test) {
         fmt::print("\rTest {} / {}", current_test + 1, test_size);
 
         #pragma omp parallel for
         for (size_t sample = 0; sample < test_sample_rate; ++sample) {
             // Conduct Test
+            algorithms.at(algorithm_key)();
         }
 
     }
