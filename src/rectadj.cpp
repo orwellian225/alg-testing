@@ -1,6 +1,7 @@
 #include <ctime>
 #include <vector>
 #include <random>
+#include <algorithm>
 
 #include <fmt/core.h>
 
@@ -143,4 +144,25 @@ std::vector<adj_t> construct_adjs_bf(std::vector<rect_t>& rects) {
     return result;
 }
 
-std::vector<adj_t> construct_adjs_opt(std::vector<rect_t>& rects) {}
+std::vector<adj_t> construct_adjs_opt(std::vector<rect_t>& rects) {
+    std::vector<adj_t> result;
+
+    auto compare_rects = [](const rect_t& a, const rect_t& b) {
+        return a.x < b.x;
+    };
+    std::sort(rects.begin(), rects.end(), compare_rects); // nlogn
+
+    for (size_t i = 0; i < rects.size(); ++i) { // n
+        std::vector<rect_t*> adj_list;
+        size_t j = i + 1;
+        while (j < rects.size() && rects[j].x <= rects[i].rx()) { // ?
+            if (are_adjacent(rects[i], rects[j])) {
+                adj_list.push_back(&rects[j]);
+            }
+            ++j;
+        }
+        result.push_back(adj_t { &rects[i], adj_list });
+    }
+
+    return result;
+}
