@@ -12,7 +12,7 @@
 #include "main.h"
 #include "rectadj.h"
 
-#define TEST_NAME "DEBUG"
+#define TEST_NAME "BF_RANDOM"
 #define TEST_OUTPUT_DIR ".\\data\\"
 #define TEST_SIZE 200
 #define TEST_SAMPLE_RATE 100
@@ -20,6 +20,7 @@
 
 #define GENERATE_DATA(n) ( generate_rects_random(n) )
 #define SOLVE(d) ( construct_adjs_bf(d) )
+
 
 int main() {
     const std::string test_name = TEST_NAME;
@@ -35,6 +36,8 @@ int main() {
     fmt::print("\t{}: {}\n", fmt::format(fg(fmt::terminal_color::blue), "Sample rate"), test_sample_rate);
     fmt::print("\t{}: {}\n", fmt::format(fg(fmt::terminal_color::blue), "Demo size"), demo_size);
     fmt::print("\n");
+
+    auto all_start_time = std::chrono::high_resolution_clock::now();
 
     std::filesystem::path out_time_filepath(fmt::format("{}\\{}.csv", test_ouput_dir, test_name));
     FILE* out_time_file = fopen(out_time_filepath.string().c_str(), "w");
@@ -61,6 +64,10 @@ int main() {
 
     fmt::println("\r{:<32}", fmt::format("Finished Tests"));
     fmt::print("\n");
+
+    auto all_end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> net_time = all_end_time - all_start_time;
+    fmt::println("{}: {}s", fmt::format(fg(fmt::terminal_color::cyan), "Test took"), net_time.count());
 
     std::filesystem::path out_data_filepath(fmt::format("{}\\{}_data.csv", test_ouput_dir, test_name));
     std::filesystem::path out_solved_filepath(fmt::format("{}\\{}_solved.csv", test_ouput_dir, test_name));
