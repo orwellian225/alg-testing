@@ -146,7 +146,7 @@ std::vector<adj_t> construct_adjs_bf(std::vector<rect_t>& rects) {
     return result;
 }
 
-std::vector<adj_t> construct_adjs_opt_lin_search(std::vector<rect_t>& rects) {
+std::vector<adj_t> construct_adjs_smart_search(std::vector<rect_t>& rects) {
     std::vector<adj_t> result;
 
     auto compare_rects = [](const rect_t& a, const rect_t& b) {
@@ -192,7 +192,7 @@ struct cl_t {
     bool operator < (const cl_t& rhs) const { return y < rhs.y || rectangle < rhs.rectangle; };
 };
 
-std::vector<adj_t> construct_adjs_opt_line_sweep(std::vector<rect_t>& rects) {
+std::vector<adj_t> construct_adjs_sweep_line(std::vector<rect_t>& rects) {
     std::vector<adj_t> result;
 
     std::vector<ep_t> event_points;
