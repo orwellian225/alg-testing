@@ -14,11 +14,11 @@
 
 #define TEST_NAME "DEBUG"
 #define TEST_OUTPUT_DIR ".\\data\\"
-#define TEST_SIZE 100 
+#define TEST_SIZE 1 
 #define TEST_SAMPLE_RATE 1
-#define DEMO_SIZE 10
+#define DEMO_SIZE 100
 
-#define GENERATE_DATA(n) ( generate_rects_hline(n) )
+#define GENERATE_DATA(n) ( generate_rects_vline(n) )
 #define SOLVE(d) ( construct_adjs_opt_line_sweep(d) )
 
 

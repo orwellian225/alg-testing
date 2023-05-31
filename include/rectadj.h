@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 struct rect_t {
     size_t id;
@@ -12,6 +13,8 @@ struct rect_t {
     double rx() const;
     double ty() const;
     std::string to_string() const;
+
+    bool operator < (const rect_t& rhs) { return y < rhs.y && ty() < rhs.ty(); }
 };
 
 struct adj_t {

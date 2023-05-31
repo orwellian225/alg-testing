@@ -6,6 +6,7 @@
 
 #include <fmt/core.h>
 
+
 #include "rectadj.h"
 
 double rect_t::rx() const { return x + w; }
@@ -174,7 +175,13 @@ struct ep_t {
     double x;
     rect_t* rectangle;
 
-    bool operator < (const ep_t& rhs) const { return x <= rhs.x && type < rhs.type; };
+    bool operator < (const ep_t& rhs) const { 
+        if (x == rhs.x) {
+            return type < rhs.type;
+        }
+
+        return x < rhs.x;
+     };
 };
 
 // Candidate List Element
@@ -195,47 +202,29 @@ std::vector<adj_t> construct_adjs_opt_line_sweep(std::vector<rect_t>& rects) {
     }
 
     std::set<cl_t> candidates;
+    size_t c_size = candidates.size();
 
     // Sort by left most x and type
     std::sort(event_points.begin(), event_points.end());
     for (size_t i = 0; i < event_points.size(); ++i) {
-        size_t cand_size = candidates.size();
+        cl_t ep_cl = cl_t { event_points[i].rectangle->ty(), event_points[i].rectangle };
         if (event_points[i].type == 0) {
-            cl_t top_ls = cl_t { event_points[i].rectangle->ty(), event_points[i].rectangle };
-            cl_t bot_ls = cl_t { event_points[i].rectangle->y, event_points[i].rectangle };
-            candidates.insert(top_ls);
-            candidates.insert(bot_ls);
+            candidates.insert(ep_cl);
         } else if (event_points[i].type == 1) {
-            cl_t top_ls = cl_t { event_points[i].rectangle->ty(), event_points[i].rectangle };
-            cl_t bot_ls = cl_t { event_points[i].rectangle->y, event_points[i].rectangle };
-
-            candidates.erase(top_ls);
-            candidates.erase(bot_ls);
-
+            candidates.erase(ep_cl);
+            cl_t search_start = cl_t { event_points[i].rectangle->y, event_points[i].rectangle };
+    
+            auto start_it = candidates.lower_bound(search_start);
+            auto it = start_it;
             std::vector<rect_t*> adj_list;
-
-            for (auto cl: candidates) {
-                if (are_adjacent(*event_points[i].rectangle, *cl.rectangle)) {
-                    adj_list.push_back(cl.rectangle);
+            while (it != candidates.end()) {
+                if (are_adjacent(*event_points[i].rectangle, *it->rectangle)) {
+                    adj_list.push_back(it->rectangle);
                 }
+                ++it;
             }
-            result.push_back(adj_t { event_points[i].rectangle, adj_list });
 
-            // std::set<cl_t>::iterator c = candidates.find(bot_ls);
-            // while (c->y >= bot_ls.y && c->y <= top_ls.y) {
-            //     if (c->rectangle == bot_ls.rectangle || c->rectangle == top_ls.rectangle) {
-            //         ++c;
-            //         continue;
-            //     }
-
-            //     if (are_adjacent(*event_points[i].rectangle, *c->rectangle)) {
-            //         adj_list.push_back(c->rectangle);
-            //     }
-                
-            //     ++c;
-            // }
-            // result.push_back(adj_t { event_points[i].rectangle, adj_list });
-
+            result.push_back(adj_t{ event_points[i].rectangle, adj_list });
         }
     }
 

@@ -9,4 +9,8 @@
             "stopAtEntry": false 
         },
     ],
+    "files.associations": {
+        "vector": "cpp",
+        "algorithm": "cpp"
+    },
 }

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.26)
 project(aaa VERSION 0.1.0)
 
 add_executable(${PROJECT_NAME} src/main.cpp src/rectadj.cpp )
@@ -20,9 +20,12 @@ target_link_directories(${PROJECT_NAME}
 )
 
 if(OpenMP_CXX_FOUND)
-    target_link_libraries(${PROJECT_NAME} fmt OpenMP::OpenMP_CXX )
+    target_link_libraries(${PROJECT_NAME} 
+        PUBLIC fmt 
+        PUBLIC OpenMP::OpenMP_CXX 
+    )
 else()
     target_link_libraries(${PROJECT_NAME}
-        fmt
+        PUBLIC fmt
     )
 endif()
