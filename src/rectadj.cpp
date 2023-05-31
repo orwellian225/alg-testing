@@ -202,7 +202,6 @@ std::vector<adj_t> construct_adjs_opt_line_sweep(std::vector<rect_t>& rects) {
     }
 
     std::set<cl_t> candidates;
-    size_t c_size = candidates.size();
 
     // Sort by left most x and type
     std::sort(event_points.begin(), event_points.end());
@@ -213,6 +212,7 @@ std::vector<adj_t> construct_adjs_opt_line_sweep(std::vector<rect_t>& rects) {
         } else if (event_points[i].type == 1) {
             candidates.erase(ep_cl);
             cl_t search_start = cl_t { event_points[i].rectangle->y, event_points[i].rectangle };
+            cl_t search_end = cl_t {event_points[i].rectangle->ty(), event_points[i].rectangle };
     
             auto start_it = candidates.lower_bound(search_start);
             auto it = start_it;
@@ -221,6 +221,11 @@ std::vector<adj_t> construct_adjs_opt_line_sweep(std::vector<rect_t>& rects) {
                 if (are_adjacent(*event_points[i].rectangle, *it->rectangle)) {
                     adj_list.push_back(it->rectangle);
                 }
+    
+                if (event_points[i].rectangle->ty() < it->rectangle->y) {
+                    break;
+                }
+
                 ++it;
             }
 
