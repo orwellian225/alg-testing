@@ -31,4 +31,5 @@ std::vector<rect_t> generate_rects_vline(size_t num_rectangles); // The first re
 std::vector<rect_t> generate_rects_hline(size_t num_rectangles); // Every rectangle has 1 adjacency to its right
 
 std::vector<adj_t> construct_adjs_bf(std::vector<rect_t>& rects);
-std::vector<adj_t> construct_adjs_opt(std::vector<rect_t>& rects);
+std::vector<adj_t> construct_adjs_opt_lin_search(std::vector<rect_t>& rects);
+std::vector<adj_t> construct_adjs_opt_line_sweep(std::vector<rect_t>& rects);

@@ -12,14 +12,14 @@
 #include "main.h"
 #include "rectadj.h"
 
-#define TEST_NAME "BF_RANDOM"
+#define TEST_NAME "DEBUG"
 #define TEST_OUTPUT_DIR ".\\data\\"
-#define TEST_SIZE 200
-#define TEST_SAMPLE_RATE 100
+#define TEST_SIZE 100 
+#define TEST_SAMPLE_RATE 1
 #define DEMO_SIZE 10
 
-#define GENERATE_DATA(n) ( generate_rects_random(n) )
-#define SOLVE(d) ( construct_adjs_bf(d) )
+#define GENERATE_DATA(n) ( generate_rects_hline(n) )
+#define SOLVE(d) ( construct_adjs_opt_line_sweep(d) )
 
 
 int main() {
@@ -48,11 +48,11 @@ int main() {
         #pragma omp parallel for reduction(add_duration: sum_time)
         for (size_t sample = 0; sample < test_sample_rate; ++sample) {
             // Generate data sample
-            std::vector<rect_t> data = GENERATE_DATA(current_test);
+            auto data = GENERATE_DATA(current_test);
 
             auto start_time = std::chrono::high_resolution_clock::now();
             // Solve the problem
-            std::vector<adj_t> solution = SOLVE(data);
+            auto solution = SOLVE(data);
             auto end_time = std::chrono::high_resolution_clock::now();
 
             sum_time += end_time - start_time;

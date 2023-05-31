@@ -2,6 +2,7 @@
 #include <vector>
 #include <random>
 #include <algorithm>
+#include <set>
 
 #include <fmt/core.h>
 
@@ -144,7 +145,7 @@ std::vector<adj_t> construct_adjs_bf(std::vector<rect_t>& rects) {
     return result;
 }
 
-std::vector<adj_t> construct_adjs_opt(std::vector<rect_t>& rects) {
+std::vector<adj_t> construct_adjs_opt_lin_search(std::vector<rect_t>& rects) {
     std::vector<adj_t> result;
 
     auto compare_rects = [](const rect_t& a, const rect_t& b) {
@@ -162,6 +163,80 @@ std::vector<adj_t> construct_adjs_opt(std::vector<rect_t>& rects) {
             ++j;
         }
         result.push_back(adj_t { &rects[i], adj_list });
+    }
+
+    return result;
+}
+
+// Event Point
+struct ep_t {
+    uint8_t type; // Left = 0, Right = 1
+    double x;
+    rect_t* rectangle;
+
+    bool operator < (const ep_t& rhs) const { return x <= rhs.x && type < rhs.type; };
+};
+
+// Candidate List Element
+struct cl_t {
+    double y;
+    rect_t* rectangle;
+
+    bool operator < (const cl_t& rhs) const { return y < rhs.y || rectangle < rhs.rectangle; };
+};
+
+std::vector<adj_t> construct_adjs_opt_line_sweep(std::vector<rect_t>& rects) {
+    std::vector<adj_t> result;
+
+    std::vector<ep_t> event_points;
+    for (size_t i = 0; i < rects.size(); ++i) {
+        event_points.push_back(ep_t { 0, rects[i].x, &rects[i] });
+        event_points.push_back(ep_t { 1, rects[i].rx(), &rects[i] });
+    }
+
+    std::set<cl_t> candidates;
+
+    // Sort by left most x and type
+    std::sort(event_points.begin(), event_points.end());
+    for (size_t i = 0; i < event_points.size(); ++i) {
+        size_t cand_size = candidates.size();
+        if (event_points[i].type == 0) {
+            cl_t top_ls = cl_t { event_points[i].rectangle->ty(), event_points[i].rectangle };
+            cl_t bot_ls = cl_t { event_points[i].rectangle->y, event_points[i].rectangle };
+            candidates.insert(top_ls);
+            candidates.insert(bot_ls);
+        } else if (event_points[i].type == 1) {
+            cl_t top_ls = cl_t { event_points[i].rectangle->ty(), event_points[i].rectangle };
+            cl_t bot_ls = cl_t { event_points[i].rectangle->y, event_points[i].rectangle };
+
+            candidates.erase(top_ls);
+            candidates.erase(bot_ls);
+
+            std::vector<rect_t*> adj_list;
+
+            for (auto cl: candidates) {
+                if (are_adjacent(*event_points[i].rectangle, *cl.rectangle)) {
+                    adj_list.push_back(cl.rectangle);
+                }
+            }
+            result.push_back(adj_t { event_points[i].rectangle, adj_list });
+
+            // std::set<cl_t>::iterator c = candidates.find(bot_ls);
+            // while (c->y >= bot_ls.y && c->y <= top_ls.y) {
+            //     if (c->rectangle == bot_ls.rectangle || c->rectangle == top_ls.rectangle) {
+            //         ++c;
+            //         continue;
+            //     }
+
+            //     if (are_adjacent(*event_points[i].rectangle, *c->rectangle)) {
+            //         adj_list.push_back(c->rectangle);
+            //     }
+                
+            //     ++c;
+            // }
+            // result.push_back(adj_t { event_points[i].rectangle, adj_list });
+
+        }
     }
 
     return result;
