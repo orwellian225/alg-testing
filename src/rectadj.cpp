@@ -124,7 +124,7 @@ std::vector<rect_t> generate_rects_hline(size_t num_rectangles) {
     for (size_t i = 1; i < num_rectangles; ++i) {
         results.push_back( rect_t {
             i,
-            i * 10.0, 0.0,
+            i * 11.0 , 0.0,
             10.0, 10.0
         });
     }
