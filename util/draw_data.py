@@ -21,11 +21,10 @@ def draw_rectangle(rectangle, axes):
 
 def main():
     parser = argparse.ArgumentParser(description = 'AAA Assignment Data Visualization Generator')
-    parser.add_argument('test_name', metavar = 'Test Name', help = 'The name of the test' )
-    parser.add_argument('data_name', metavar = 'Data Name', help = 'The name of the current data set')
+    parser.add_argument('data_file', metavar = 'Data File', help = 'Path to the data file')
     args = parser.parse_args()
 
-    rect_csv = open(f"{args.test_name}/{args.data_name}_data.csv", "r")
+    rect_csv = open(args.data_file, "r")
     rect_reader = csv.reader(rect_csv)
 
     fig, ax = plt.subplots()
@@ -33,7 +32,7 @@ def main():
     max_y = 0
 
     for row in rect_reader:
-        rect = [int(row[0]), int(row[1]), int(row[2]), int(row[3]) - int(row[1]), int(row[4]) - int(row[2])]
+        rect = [int(row[0]), float(row[1]), float(row[2]), float(row[3]) - float(row[1]), float(row[4]) - float(row[2])]
 
         if rect[2] + rect[4] > max_y:
             max_y = rect[2] + rect[4]
@@ -45,7 +44,8 @@ def main():
 
     plt.xlim([-10, max_x + 10])
     plt.ylim([-10, max_y + 10])
-    plt.savefig(f"{args.test_name}/{args.data_name}_data_visual.pdf")
+    print(f"Saving to {args.data_file[:-4]}.pdf\n")
+    plt.savefig(f"{args.data_file[:-4]}_dataviz.pdf")
     plt.close()
 
 if __name__ == "__main__":
